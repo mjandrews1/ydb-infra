@@ -1,0 +1,29 @@
+# YottaDB Web Server via Caddy (TLS)
+# No public DNS for this host — Caddy local CA (tls internal).
+# Real Let's Encrypt like U01 requires a public A record + 80/443 inbound.
+
+utility-02, utility-02.taild03114.ts.net, 192.168.0.24, 100.89.100.53 {
+	tls internal
+
+	handle_path /ydb/* {
+		reverse_proxy localhost:9080
+	}
+
+	handle {
+		reverse_proxy localhost:9080
+	}
+
+	header {
+		X-Content-Type-Options nosniff
+		X-Frame-Options DENY
+		Referrer-Policy strict-origin-when-cross-origin
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+	}
+
+	log {
+		output file /var/log/caddy/access.log {
+			roll_size 10mb
+			roll_keep 5
+		}
+	}
+}

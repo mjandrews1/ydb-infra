@@ -1,0 +1,30 @@
+home.flamingyak.com {
+    # YottaDB Web Server (prefix stripped: /ydb/api/ping -> /api/ping)
+    handle_path /ydb/* {
+        reverse_proxy localhost:9080
+    }
+
+    # Health check
+    handle /health {
+        respond "{\"status\":\"ok\",\"service\":\"ydb-web\"}" 200
+    }
+
+    # Default: YottaDB Web Server
+    handle {
+        reverse_proxy localhost:9080
+    }
+
+    header {
+        X-Content-Type-Options nosniff
+        X-Frame-Options DENY
+        Referrer-Policy strict-origin-when-cross-origin
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    }
+
+    log {
+        output file /var/log/caddy/access.log {
+            roll_size 10mb
+            roll_keep 5
+        }
+    }
+}

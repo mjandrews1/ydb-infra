@@ -1,0 +1,25 @@
+[DEFAULT]
+banaction = nftables
+banaction_allports = nftables[type=allports]
+bantime  = 3600
+findtime = 600
+maxretry = 5
+
+[sshd]
+enabled = true
+port = ssh
+filter = sshd
+backend = systemd
+journalmatch = _SYSTEMD_UNIT=ssh.service + _COMM=sshd
+maxretry = 5
+bantime = 3600
+findtime = 600
+
+[caddy-scanners]
+enabled = true
+port = http,https
+filter = caddy-auth
+logpath = /var/log/caddy/access.log
+maxretry = 10
+bantime = 86400
+findtime = 3600

@@ -1,0 +1,19 @@
+#!/bin/bash
+# YottaDB Web Server control wrapper
+# Note: ydb_env_set is not set -u safe (references ydb_dist before defining it)
+set -eo pipefail
+source /usr/local/etc/ydb_env_set
+PORT="${YDB_WEB_PORT:-9080}"
+DOCROOT="${YDB_WEB_DOCROOT:-/var/ydb/web}"
+case "${1:-start}" in
+  start)
+    exec "$ydb_dist/yottadb" -run start^%ydbwebreq --directory "$DOCROOT" --port "$PORT" --log 1
+    ;;
+  stop)
+    exec "$ydb_dist/yottadb" -run stop^%ydbwebreq --port "$PORT"
+    ;;
+  *)
+    echo "usage: $0 {start|stop}" >&2
+    exit 2
+    ;;
+esac
