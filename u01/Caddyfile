@@ -28,3 +28,35 @@ home.flamingyak.com {
         }
     }
 }
+
+# Internal peer of home.flamingyak.com — local CA (no public DNS).
+# Clients: add home.flamingyak.lan -> 192.168.0.16 or 100.72.84.8 (hosts/DNS).
+home.flamingyak.lan, u01.lan, utility-01, utility-01.taild03114.ts.net, 192.168.0.16, 100.72.84.8 {
+    tls internal
+
+    handle_path /ydb/* {
+        reverse_proxy localhost:9080
+    }
+
+    handle /health {
+        respond "{\"status\":\"ok\",\"service\":\"ydb-web\",\"peer\":\"internal\"}" 200
+    }
+
+    handle {
+        reverse_proxy localhost:9080
+    }
+
+    header {
+        X-Content-Type-Options nosniff
+        X-Frame-Options DENY
+        Referrer-Policy strict-origin-when-cross-origin
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    }
+
+    log {
+        output file /var/log/caddy/access-internal.log {
+            roll_size 10mb
+            roll_keep 5
+        }
+    }
+}
