@@ -4,6 +4,16 @@ home.flamingyak.com {
         reverse_proxy 127.0.0.1:8081
     }
 
+    # /ydb (no trailing slash) is not a YottaDB file path — serve console root
+    handle /ydb {
+        rewrite * /
+        reverse_proxy localhost:9080
+    }
+    handle /ydb/ {
+        rewrite * /
+        reverse_proxy localhost:9080
+    }
+
     # YottaDB Web Server (prefix stripped: /ydb/api/ping -> /api/ping)
     handle_path /ydb/* {
         reverse_proxy localhost:9080
@@ -41,6 +51,15 @@ home.flamingyak.lan, u01.lan, utility-01, utility-01.taild03114.ts.net, 192.168.
 
     handle /search* {
         reverse_proxy 127.0.0.1:8081
+    }
+
+    handle /ydb {
+        rewrite * /
+        reverse_proxy localhost:9080
+    }
+    handle /ydb/ {
+        rewrite * /
+        reverse_proxy localhost:9080
     }
 
     handle_path /ydb/* {
