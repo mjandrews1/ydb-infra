@@ -4,6 +4,12 @@ home.flamingyak.com {
         reverse_proxy 127.0.0.1:8081
     }
 
+    # YottaDB portal auth (user ydb / password in ops vault)
+    @portal path / /ydb /ydb/*
+    basicauth @portal {
+        ydb $2a$14$m4iMb1F0PEa9.q6UuBKd8uAEIGlNqiX7HFjgC/yMShGlSs4iDLAo.
+    }
+
     # /ydb (no trailing slash) is not a YottaDB file path — serve console root
     handle /ydb {
         rewrite * /
@@ -53,6 +59,10 @@ home.flamingyak.lan, u01.lan, utility-01, utility-01.taild03114.ts.net, 192.168.
         reverse_proxy 127.0.0.1:8081
     }
 
+    @portal path / /ydb /ydb/*
+    basicauth @portal {
+        ydb $2a$14$m4iMb1F0PEa9.q6UuBKd8uAEIGlNqiX7HFjgC/yMShGlSs4iDLAo.
+    }
     handle /ydb {
         rewrite * /
         reverse_proxy localhost:9080
