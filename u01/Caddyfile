@@ -7,7 +7,7 @@ home.flamingyak.com {
     # YottaDB portal auth (user ydb / password in ops vault)
     @portal path / /ydb /ydb/*
     basicauth @portal {
-        ydb $2a$14$m4iMb1F0PEa9.q6UuBKd8uAEIGlNqiX7HFjgC/yMShGlSs4iDLAo.
+        ydb $2a$14$iyLrM/IPxl85XP91D2n.yuMK.OrGIFf93UBhz2RXQS2L6NmGbwNSu
     }
 
     # /ydb (no trailing slash) is not a YottaDB file path — serve console root
@@ -40,6 +40,10 @@ home.flamingyak.com {
         X-Frame-Options DENY
         Referrer-Policy strict-origin-when-cross-origin
         Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        Content-Security-Policy "default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'"
+        Permissions-Policy "geolocation=(), microphone=(), camera=()"
+        -Server
+        -X-Powered-By
     }
 
     log {
@@ -61,7 +65,7 @@ home.flamingyak.lan, u01.lan, utility-01, utility-01.taild03114.ts.net, 192.168.
 
     @portal path / /ydb /ydb/*
     basicauth @portal {
-        ydb $2a$14$m4iMb1F0PEa9.q6UuBKd8uAEIGlNqiX7HFjgC/yMShGlSs4iDLAo.
+        ydb $2a$14$iyLrM/IPxl85XP91D2n.yuMK.OrGIFf93UBhz2RXQS2L6NmGbwNSu
     }
     handle /ydb {
         rewrite * /
@@ -89,6 +93,10 @@ home.flamingyak.lan, u01.lan, utility-01, utility-01.taild03114.ts.net, 192.168.
         X-Frame-Options DENY
         Referrer-Policy strict-origin-when-cross-origin
         Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        Content-Security-Policy "default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'"
+        Permissions-Policy "geolocation=(), microphone=(), camera=()"
+        -Server
+        -X-Powered-By
     }
 
     log {

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>YottaDB Dashboard</title>
+  <style>
+    body { font-family: ui-sans-serif, system-ui, sans-serif; margin: 2rem; background: #0f1419; color: #e7ecf1; }
+    h1 { font-size: 1.4rem; margin-bottom: .25rem; }
+    .sub { color: #8b9bab; margin-bottom: 1.5rem; font-size: .9rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: .75rem; }
+    .card { background: #1a2332; border: 1px solid #2a3a4d; border-radius: 8px; padding: .9rem 1rem; }
+    .card .k { font-size: .72rem; text-transform: uppercase; letter-spacing: .04em; color: #8b9bab; }
+    .card .v { font-size: 1.35rem; font-weight: 600; margin-top: .25rem; font-variant-numeric: tabular-nums; }
+    .ok { color: #3dd68c; } .warn { color: #f5a524; } .err { color: #f76e6e; }
+    footer { margin-top: 2rem; color: #6b7c8d; font-size: .8rem; }
+    a { color: #6cb6ff; }
+  </style>
+</head>
+<body>
+  <h1>YottaDB Dashboard</h1>
+  <div class="sub">Host metrics via <code>ydbdash</code> / gvstat · refresh <span id="ts">–</span></div>
+  <div class="grid" id="grid">loading…</div>
+  <footer>
+    Prometheus metrics: <a href="/dashboard/metrics" id="mlink">/dashboard/metrics</a>
+    · YottaDB Web Server on :9080
+  </footer>
+<script>
+const KEYS = [
+  ["DRD","Disk reads"],["BTD","Block→dirty"],["GTD","Global gets"],
+  ["SET","Sets"],["KIL","Kills"],["DAT","Data"],["GET","Get"],
+  ["ORD","Order"],["QRY","Query"],["PRN","Print"],
+  ["ZPR","Zprint"],["ZTR","Ztrigger"],["PROCS","Processes"],
+  ["GLOBS","Globals"],["ROUTS","Routines"],["LOCKS","Locks"],
+  ["LAVG1","Load 1m"],["LAVG5","Load 5m"],["LAVG15","Load 15m"],
+  ["Perc_Free","% free"],["Free","Free space"],["Total_Space","Total space"],
+];
+function parseProm(text) {
+  const m = {};
+  for (const line of text.split("\n")) {
+    if (!line || line[0] === "#") continue;
+    const i = line.lastIndexOf(" ");
+    if (i < 0) continue;
+    const name = line.slice(0, i).split("{")[0];
+    const val = line.slice(i + 1);
+    m[name] = val;
+  }
+  return m;
+}
+function render(m) {
+  const g = document.getElementById("grid");
+  g.innerHTML = "";
+  for (const [k, label] of KEYS) {
+    // prom names may be DRD_pit etc.
+    let v = m[k] ?? m[k + "_pit"] ?? m["Yottadb_" + k] ?? null;
+    if (v == null) {
+      const hit = Object.keys(m).find(n => n.toUpperCase().startsWith(k.toUpperCase()));
+      if (hit) v = m[hit];
+    }
+    const d = document.createElement("div");
+    d.className = "card";
+    d.innerHTML = `<div class="k">${label}</div><div class="v">${v == null ? "–" : v}</div>`;
+    g.appendChild(d);
+  }
+  document.getElementById("ts").textContent = new Date().toLocaleTimeString();
+}
+async function tick() {
+  try {
+    const r = await fetch("metrics", { cache: "no-store" });
+    const t = await r.text();
+    render(parseProm(t));
+    document.getElementById("mlink").className = "ok";
+  } catch (e) {
+    document.getElementById("grid").innerHTML =
+      `<div class="card err"><div class="k">metrics</div><div class="v">unreachable</div></div>`;
+    document.getElementById("mlink").className = "err";
+  }
+}
+tick();
+setInterval(tick, 10000);
+</script>
+</body>
+</html>
