@@ -69,3 +69,10 @@ curl --cacert /var/ydb/caddy-root.crt https://192.168.0.24/api/version
 - U02 sudo needs the account password (`echo "<pw>" | sudo -S -p '' cmd`). Do not pair `sudo -S` with a heredoc (steals password stdin). U01 has NOPASSWD sudo.
 - U02 local-CA leaf certs are 12h and auto-renew (Caddy 2.11 default).
 - `ydbinstall` sets `RemoveIPC=no` in `logind.conf`; logind was restarted on both hosts.
+
+## Portal credentials (YottaDB `/ydb`)
+
+- Caddy `basicauth` user **`ydb`** on `home.flamingyak.com` (U01).
+- **Rotated 2026-10-09** — old password revoked (401); new password in ops vault only (not in git).
+- Verify: `curl -k -u ydb:… https://home.flamingyak.com/ydb/` → 200; old → 401; anon → 401.
+- Hash lives in `/etc/caddy/Caddyfile` (`$2a$14$…`). U02 has no basicauth (LAN/TS only).
