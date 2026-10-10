@@ -1,0 +1,37 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint-scripts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Python syntax
+        run: |
+          set -euo pipefail
+          python3 -m compileall -q common u01 u02
+          find . -name '*.py' -print0 | xargs -0 -n1 python3 -m py_compile
+
+      - name: Shell syntax
+        run: |
+          set -euo pipefail
+          find . -type f \( -name '*.sh' -o -name '*.service' \) -print0 |
+            xargs -0 -r -n1 sh -c 'case "$1" in *.sh) bash -n "$1";; esac' _ || true
+          for f in $(find . -name '*.sh'); do
+            bash -n "$f"
+          done
+
+      - name: Caddyfile present
+        run: |
+          test -f u01/Caddyfile
+          test -f u02/Caddyfile
+          test -f common/caddy-auth.conf
